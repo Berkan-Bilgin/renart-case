@@ -1,12 +1,21 @@
-export async function getGoldPrice() {
-  // You can use the real API here
-  // const res = await fetch("https://www.goldapi.io/api/XAU/USD", {
-  //   headers: { "x-access-token": process.env.GOLD_API_KEY }
-  // });
-  // const data = await res.json();
-  // return data.price_gram_24k;
+export async function getGoldPriceUSDGram() {
+  try {
+    const res = await fetch(`https://api.gold-api.com/price/XAU`);
 
-  // TODO: Replace the hardcoded value with the real API response in production.
-  // Consider using an environment variable or configuration to switch between mock and real data.
-  return 70; // Mocked gold price in USD per gram
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    if (!data.price || typeof data.price !== "number") {
+      throw new Error("Invalid price data received");
+    }
+
+    const pricePerGram = data.price / 31.1035;
+    return Math.round(pricePerGram * 100) / 100;
+  } catch (error) {
+    console.error("Gold price API error:", error);
+    return null;
+  }
 }

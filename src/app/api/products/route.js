@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { products } from "@/data/productsData";
-import { getGoldPrice } from "@/services/goldApiService";
+import { getGoldPriceUSDGram } from "@/services/goldApiService";
 import { calculatePrice } from "@/services/productService";
 import { convertPopularityScoreTo5 } from "@/helpers/convertPopularityScoreTo5";
 
 export async function GET() {
   try {
-    const goldPrice = await getGoldPrice();
+    const goldPrice = await getGoldPriceUSDGram();
 
     const enrichedProducts = products.map((product) => {
       const price = calculatePrice(
