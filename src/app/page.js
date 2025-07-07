@@ -4,10 +4,12 @@ import FilterSidebar from "@/components/FilterSidebar";
 export default async function HomePage({ searchParams }) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-  const minPrice = searchParams.minPrice ?? "0";
-  const maxPrice = searchParams.maxPrice ?? "100000";
-  const minPopularity = searchParams.minPopularity ?? "0";
-  const maxPopularity = searchParams.maxPopularity ?? "5";
+  const params = await searchParams;
+
+  const minPrice = params.minPrice ?? "0";
+  const maxPrice = params.maxPrice ?? "100000";
+  const minPopularity = params.minPopularity ?? "0";
+  const maxPopularity = params.maxPopularity ?? "5";
 
   const res = await fetch(
     `${baseUrl}/api/products?minPrice=${minPrice}&maxPrice=${maxPrice}&minPopularity=${minPopularity}&maxPopularity=${maxPopularity}`,
