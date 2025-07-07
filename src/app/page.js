@@ -28,7 +28,13 @@ export default async function HomePage({ searchParams }) {
         <FilterSidebar />
       </div>
 
-      <ProductCarousel products={products} />
+      {products.length === 0 ? (
+        <p className="text-center text-gray-500 text-lg mt-12">
+          No products found. Please adjust your filters and try again.
+        </p>
+      ) : (
+        <ProductCarousel products={products} />
+      )}
     </main>
   );
 }

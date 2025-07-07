@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Star, StarHalf } from "lucide-react";
 
 export default function FilterSidebar() {
   const router = useRouter();
@@ -20,7 +21,45 @@ export default function FilterSidebar() {
 
   const [isPending, startTransition] = useTransition();
 
-  // Tüm validasyon kontrolleri
+  // Format price with dollar sign
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  // Render stars for rating
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+      );
+    }
+
+    if (hasHalfStar) {
+      stars.push(
+        <StarHalf
+          key="half"
+          className="w-4 h-4 fill-yellow-400 text-yellow-400"
+        />
+      );
+    }
+
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<Star key={`empty-${i}`} className="w-4 h-4 text-gray-300" />);
+    }
+
+    return stars;
+  };
+
+  // All validation checks
   useEffect(() => {
     let minP = Number(minPrice);
     let maxP = Number(maxPrice);
@@ -70,68 +109,107 @@ export default function FilterSidebar() {
   };
 
   return (
-    <form className="p-4 border rounded-md shadow w-60 max-w-screen-xl mx-auto">
-      <h3 className="font-semibold text-lg mb-2">Fiyat Aralığı</h3>
+    <div className="p-6 border rounded-lg shadow-lg w-72 max-w-screen-xl mx-auto bg-white">
+      <style jsx>{`
+        /* Number input spinner'ları kaldır */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type="number"] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
 
-      <div className="flex items-center mb-3 gap-2">
-        <input
-          type="number"
-          value={minPrice}
-          min={0}
-          onChange={(e) => setMinPrice(e.target.value)}
-          className="w-full border px-2 py-1"
-          placeholder="Min"
-        />
-        <span>-</span>
-        <input
-          type="number"
-          value={maxPrice}
-          min={0}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          className="w-full border px-2 py-1"
-          placeholder="Max"
-        />
+      <h2 className="font-bold text-xl mb-6 text-gray-800">Filters</h2>
+
+      {/* Price Range Section */}
+      <div className="mb-6">
+        <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+          💰 Price Range
+        </h3>
+
+        <div className="flex items-center mb-3 gap-2">
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+              $
+            </span>
+            <input
+              type="number"
+              value={minPrice}
+              min={0}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-8 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="Min"
+            />
+          </div>
+          <span className="text-gray-400 font-medium">to</span>
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+              $
+            </span>
+            <input
+              type="number"
+              value={maxPrice}
+              min={0}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-8 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="Max"
+            />
+          </div>
+        </div>
+
+        <div className="text-sm text-gray-600 mt-2">
+          Range: {formatPrice(minPrice)} - {formatPrice(maxPrice)}
+        </div>
       </div>
 
-      <h3 className="font-semibold text-lg mb-2 mt-4">Ürün Puanı</h3>
+      {/* Rating Section */}
+      <div className="mb-6">
+        <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+          ⭐ Rating
+        </h3>
 
-      <div className="flex items-center mb-4 gap-2">
-        <input
-          type="number"
-          step="0.1"
-          min="0"
-          max="5"
-          value={minPopularity}
-          onChange={(e) => setMinPopularity(e.target.value)}
-          className="w-full border px-2 py-1"
-          placeholder="Min Puan"
-        />
-        <span>-</span>
-        <input
-          type="number"
-          step="0.1"
-          min="0"
-          max="5"
-          value={maxPopularity}
-          onChange={(e) => setMaxPopularity(e.target.value)}
-          className="w-full border px-2 py-1"
-          placeholder="Max Puan"
-        />
+        <div className="flex items-center mb-3 gap-2">
+          <input
+            type="number"
+            step="0.1"
+            min="0"
+            max="5"
+            value={minPopularity}
+            onChange={(e) => setMinPopularity(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="Min Rating"
+          />
+          <span className="text-gray-400 font-medium">to</span>
+          <input
+            type="number"
+            step="0.1"
+            min="0"
+            max="5"
+            value={maxPopularity}
+            onChange={(e) => setMaxPopularity(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="Max Rating"
+          />
+        </div>
       </div>
 
       <button
         type="button"
         onClick={handleReset}
-        className="w-full bg-gray-200 text-gray-700 py-2 rounded hover:bg-gray-300 transition"
+        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-md transition-colors duration-200 font-medium"
       >
-        Sıfırla
+        Reset Filters
       </button>
 
       {isPending && (
-        <p className="text-center text-sm text-gray-500 mt-2">
-          Filtreleniyor...
-        </p>
+        <div className="flex items-center justify-center mt-4">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+          <span className="ml-2 text-sm text-gray-500">Filtering...</span>
+        </div>
       )}
-    </form>
+    </div>
   );
 }
